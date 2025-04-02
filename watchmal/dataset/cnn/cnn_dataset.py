@@ -97,10 +97,8 @@ class CNNDataset(H5Dataset):
         """
 
         super().__init__(h5file, use_memmap)
-
-        self.pmt_positions = np.load(pmt_positions_file)["pmt_image_positions"].astype(
-            int
-        )
+        
+        self.pmt_positions = np.load(pmt_positions_file)['pmt_image_positions'].astype(int)
         self.use_times = use_times
         self.use_charges = use_charges
         self.use_isHit = use_isHit
