@@ -1,6 +1,7 @@
 """
-Class implementing a PMT dataset for CNNs in h5 format
-Modified from mPMT dataset for use with single PMTs
+Here is a dataset class for Double-Image T2T-ViT.
+This class is adapted from CNNDataset to handle double images.
+(Like the 20inch PMT images and mPMT images)
 """
 
 # torch imports
@@ -15,18 +16,13 @@ from watchmal.dataset.h5_dataset import H5Dataset
 import watchmal.dataset.data_utils as du
 
 
-class CNNDataset(H5Dataset):
-    """
-    This class loads PMT hit data from an HDF5 file and provides events formatted for CNNs, where the 3D data tensor's
-    first dimension is over the channels, corresponding to hit time and/or charge, and the second and third dimensions
-    are the height and width of the CNN image. Each pixel of the image corresponds to one PMT, with PMTs arrange in an
-    event-display-like format.
-    """
-
+class DoubleImageDataset(H5Dataset):
     def __init__(
         self,
         h5file,
+        h5file_mpmt,
         pmt_positions_file,
+        mpmt_positions_file,
         use_times=True,
         use_charges=True,
         use_padding=False,
@@ -44,63 +40,22 @@ class CNNDataset(H5Dataset):
         use_log_charge=False,
     ):
         """
-        Constructs a dataset for CNN data. Event hit data is read in from the HDF5 file and the PMT charge and/or time
-        data is formatted into an event-display-like image for input to a CNN. Each pixel of the image corresponds to
-        one PMT and the channels correspond to charge and/or time at each PMT. The PMTs are placed in the image
-        according to a mapping provided by the numpy array in the `pmt_positions_file`.
-
-        Parameters
+        Parameters:
         ----------
-        h5file: string
-            Location of the HDF5 file containing the event data
-        pmt_positions_file: string
-            Location of an npz file containing the mapping from PMT IDs to CNN image pixel locations
-        use_times: bool
-            Whether to use PMT hit times as one of the initial CNN image channels. True by default.
-        use_charges: bool
-            Whether to use PMT hit charges as one of the initial CNN image channels. True by default.
-        transforms
-            List of random transforms to apply to data before passing to CNN for data augmentation. Currently unused for
-            this dataset.
-        one_indexed: bool
-            Whether the PMT IDs in the H5 file are indexed starting at 1 (like SK tube numbers) or 0 (like WCSim PMT
-            indexes). By default, zero-indexing is assumed.
-        use_memmap: bool
-            Use a memmap and load data into memory as needed (default), otherwise load entire dataset at initialisation
-        ---------- The following features are used for optimization.
-        channel_scale_factor: dict of float
-            Dictionary with keys corresponding to channels and values contain the factors to divide that channel.
-            By default, no scaling is applied.
-        channel_scale_offset: dict of float
-            Dictionary with keys corresponding to channels and values contain the offsets to subtract from that channel.
-            By default, no scaling is applied.
-        use_isHit: bool
-            Whether to use a channel to tag the PMT hit or not.
-        use_positions: bool
-            Whether to use three channels to add the real positions info of PMTs.
-        use_orientations: bool
-            Whether to use three channels to add the real orientations info of PMTs.
-        geometry_file: string
-            Location of an npz file containing the real positions and orientations info.
-        use_invalid_value: bool
-            Whether to set all the channel of unhit as an invalid value (like -100).
-        use_log_charge: bool
-            Whether to logarithmically transform the charge.
-        ---------- The following features are used for Visual Transformer. 
-        Because in ViT we need to devide the image, the original image size is 191*191 (HK 20inch PMT), so here we directly pad the image to 192*192, which is more easy to be divided. 
-        use_padding: bool
-            Whether to pad the data to a fixed dimension (default: False).
-        padding_to_fixed_dimension: list of int
-            If use_padding is True, this specifies the fixed dimension to which the data will be padded.
-            Default: [192, 192] (for 192x192 images).
-        ----------
+        h5file_mpmt: string
+            Location of the HDF5 file containing the event data of the mPMT
+        mpmt_positions_file: string
+            Location of an npz file containing the mapping from mPMT IDs to CNN image pixel locations
+        Other parameters are similar to those in CNNDataset.
         """
-
         super().__init__(h5file, use_memmap)
-
+        self.mpmt_dataset = H5Dataset(h5file_mpmt, use_memmap)
         self.pmt_positions = np.load(pmt_positions_file)["pmt_image_positions"].astype(
             int
         )
+        self.mpmt_positions = np.load(mpmt_positions_file)[
+            "pmt_image_positions"
+        ].astype(int)
         self.use_times = use_times
         self.use_charges = use_charges
         self.use_isHit = use_isHit
@@ -109,16 +64,20 @@ class CNNDataset(H5Dataset):
         self.use_invalid_value = use_invalid_value
         self.use_log_charge = use_log_charge
         self.data_size = np.max(self.pmt_positions, axis=0) + 1
+        self.data_size_mpmt = np.max(self.mpmt_positions, axis=0) + 1
         if use_padding:
             self.data_size = padding_to_fixed_dimension
+            self.data_size_mpmt = padding_to_fixed_dimension
+
         self.barrel_rows = [
             row
             for row in range(self.data_size[0])
             if np.count_nonzero(self.pmt_positions[:, 0] == row) == self.data_size[1]
         ]
-        self.transforms = None  # du.get_transformations(transformations, transforms)
+        self.transforms = None  # du.get_transformations(transformations, transforms)p
         self.one_indexed = one_indexed
 
+        # TODO: geometry file for mPMT hasn't been down
         if use_positions:
             self.real_3Dpositions = np.load(geometry_file)["positions"]
         else:
@@ -165,9 +124,11 @@ class CNNDataset(H5Dataset):
             raise ValueError("No time or charge information loaded.")
 
         self.n_channels = current_channel
+        self.n_channels_mpmt = 38
         self.data_size = np.insert(self.data_size, 0, self.n_channels)
+        self.data_size_mpmt = np.insert(self.data_size_mpmt, 0, self.n_channels_mpmt)
 
-    def process_data(self, hit_pmts, hit_times, hit_charges):
+    def process_data_main(self, hit_pmts, hit_times, hit_charges):
         """
         Returns event data from dataset associated with a specific index
 
@@ -254,23 +215,117 @@ class CNNDataset(H5Dataset):
             data[self.channel_map["charge"], hit_rows, hit_cols] = (
                 hit_charges - charge_offset
             ) / charge_scale
+
+        if "isHit" in self.channel_map:
+            data[self.channel_map["isHit"], hit_rows, hit_cols] = 1.0
+
+        return data
+
+    def process_data_second(self, hit_pmts, hit_times, hit_charges):
+        """
+        Returns second image (e.g., mPMT-based) event data formatted for CNN input.
+        """
+        if self.one_indexed:
+            hit_pmts = hit_pmts - 1
+
+        hit_rows = self.mpmt_positions[hit_pmts, 0]
+        hit_cols = self.mpmt_positions[hit_pmts, 1]
+
+        invalid_value = 0.0
+        if self.use_invalid_value:
+            invalid_value = -100.0
+
+        time_offset = self.scale_offset.get("time", 0.0)
+        time_scale = self.scale_factor.get("time", 1.0)
+        charge_offset = self.scale_offset.get("charge", 0.0)
+        charge_scale = self.scale_factor.get("charge", 1.0)
+        positions_offset = self.scale_offset.get("positions", 0.0)
+        positions_scale = self.scale_factor.get("positions", 1.0)
+        orientations_offset = self.scale_offset.get("orientations", 0.0)
+        orientations_scale = self.scale_factor.get("orientations", 1.0)
+
+        if self.use_log_charge:
+            hit_charges = np.log10(hit_charges)
+
+        data = np.full(self.data_size_mpmt, invalid_value, dtype=np.float32)
+
+        if self.use_positions:
+            data[
+                self.channel_map["position_X"],
+                self.mpmt_positions[:, 0],
+                self.mpmt_positions[:, 1],
+            ] = (self.real_3Dpositions[:, 0] - positions_offset) / positions_scale
+            data[
+                self.channel_map["position_Y"],
+                self.mpmt_positions[:, 0],
+                self.mpmt_positions[:, 1],
+            ] = (self.real_3Dpositions[:, 1] - positions_offset) / positions_scale
+            data[
+                self.channel_map["position_Z"],
+                self.mpmt_positions[:, 0],
+                self.mpmt_positions[:, 1],
+            ] = (self.real_3Dpositions[:, 2] - positions_offset) / positions_scale
+
+        if self.use_orientations:
+            data[
+                self.channel_map["orientation_X"],
+                self.mpmt_positions[:, 0],
+                self.mpmt_positions[:, 1],
+            ] = (
+                self.real_3Dorientations[:, 0] - orientations_offset
+            ) / orientations_scale
+            data[
+                self.channel_map["orientation_Y"],
+                self.mpmt_positions[:, 0],
+                self.mpmt_positions[:, 1],
+            ] = (
+                self.real_3Dorientations[:, 1] - orientations_offset
+            ) / orientations_scale
+            data[
+                self.channel_map["orientation_Z"],
+                self.mpmt_positions[:, 0],
+                self.mpmt_positions[:, 1],
+            ] = (
+                self.real_3Dorientations[:, 2] - orientations_offset
+            ) / orientations_scale
+
+        if "time" in self.channel_map:
+            data[(hit_pmts % 19) * 2, hit_rows, hit_cols] = (
+                hit_times - time_offset
+            ) / time_scale
+        if "charge" in self.channel_map:
+            data[(hit_pmts % 19) * 2 + 1, hit_rows, hit_cols] = (
+                hit_charges - charge_offset
+            ) / charge_scale
         if "isHit" in self.channel_map:
             data[self.channel_map["isHit"], hit_rows, hit_cols] = 1.0
 
         return data
 
     def __getitem__(self, item):
+        if not self.initialized:
+            self.initialize()
+        if not self.mpmt_dataset.initialized:
+            self.mpmt_dataset.initialize()
         data_dict = super().__getitem__(item)
 
-        processed_data = from_numpy(
-            self.process_data(
+        data_main = from_numpy(
+            self.process_data_main(
                 self.event_hit_pmts, self.event_hit_times, self.event_hit_charges
             )
         )
-        processed_data = du.apply_random_transformations(
-            self.transforms, processed_data
+        if self.transforms:
+            data_main = du.apply_random_transformations(self.transforms, data_main)
+        mpmt_record = self.mpmt_dataset[item]
+        data_second = from_numpy(
+            self.process_data_second(
+                self.mpmt_dataset.event_hit_pmts,
+                self.mpmt_dataset.event_hit_times,
+                self.mpmt_dataset.event_hit_charges,
+            )
         )
 
-        data_dict["data"] = processed_data
+        data_dict["data_main"] = data_main  # e.g. shape [2, 192, 192]
+        data_dict["data_second"] = data_second  # e.g. shape [38, 192, 192]
 
         return data_dict
