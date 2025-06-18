@@ -5,7 +5,7 @@ Utility functions for performing mathematical, physical, statistical, geometrica
 import numpy as np
 
 
-DEFAULT_TANK_AXIS = 1
+DEFAULT_TANK_AXIS = 2
 
 
 def towall(position, angle, tank_half_height, tank_radius, tank_axis=None):
@@ -72,7 +72,7 @@ def dwall(position, tank_half_height, tank_radius, tank_axis=None):
     return np.minimum(dwall_barrel, dwall_endcap)
 
 
-def momentum_from_energy(energy, label, particle_masses=np.array((0, 0.511, 105.7, 134.98))):
+def momentum_from_energy(energy, label, particle_masses=np.array((0, 0.511, 105.658, 134.98))):
     """
     Calculate momentum of particle from total energy and particle type (label)
     Default labels are 0:gamma, 1:electron, 2:muon, 3:pi0
@@ -97,7 +97,7 @@ def momentum_from_energy(energy, label, particle_masses=np.array((0, 0.511, 105.
     return np.sqrt(energy**2 - mass**2)
 
 
-def energy_from_momentum(momentum, label, particle_masses=np.array((0, 0.511, 105.7, 134.98))):
+def energy_from_momentum(momentum, label, particle_masses=np.array((0, 0.511, 105.658, 134.98))):
     """
     Calculate total energy of particle from momentum and particle type (label)
     Default labels are 0:gamma, 1:electron, 2:muon, 3:pi0
