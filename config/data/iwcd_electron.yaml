@@ -1,3 +1,0 @@
-defaults:
-  - iwcd
-split_path: /fast_scratch/WatChMaL/data/IWCD_mPMT_Short/index_lists/1class_regression/IWCD_mPMT_Short_electrons.npz
