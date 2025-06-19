@@ -120,11 +120,11 @@ class CNNDataset(H5Dataset):
         self.one_indexed = one_indexed
 
         if use_positions:
-            self.real_3Dpositions = np.load(geometry_file)["positions"]
+            self.real_3Dpositions = np.load(geometry_file)["position"]
         else:
             self.real_3Dpositions = None
         if use_orientations:
-            self.real_3Dorientations = np.load(geometry_file)["orientations"]
+            self.real_3Dorientations = np.load(geometry_file)["orientation"]
         else:
             self.real_3Dorientations = None
 
