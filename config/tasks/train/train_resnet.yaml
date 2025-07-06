@@ -4,7 +4,7 @@ defaults:
  - /data_loaders:
    - train
    - validation
-epochs: 1
-val_interval: 500
+epochs: 20
+val_interval: 200
 num_val_batches: 128
 checkpointing: False

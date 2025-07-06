@@ -97,11 +97,14 @@ def momentum_from_energy(energy, label, particle_masses=np.array((0, 0.511, 105.
     if len(bad_energy_idxs)>0:
         print("Energy is less than the mass at the following indicies:")
         print('\n')
-        print(bad_energy_idxs)
+        print(bad_energy_idxs.squeeze())
         print('\n')
         print("Setting Energy at these indices to equal the mass such that energy-mass=0")
         print("you should maybe look into this")
-        energy[bad_energy_idxs] = mass
+        if type(label)==int:
+            energy[bad_energy_idxs] = mass
+        else:
+            energy[bad_energy_idxs] = mass[bad_energy_idxs]
 
 
     return np.sqrt(energy**2 - mass**2)

@@ -1,6 +1,5 @@
 gpu_list:
     - 0
-    - 1
 seed: null
 dump_path: './outputs/'
 defaults:
@@ -8,5 +7,5 @@ defaults:
     - model: resnet50
     - engine: classifier
     - tasks/restore_state: classifier
-    - tasks/evaluate: test
+    - tasks/evaluate: classification
     - _self_

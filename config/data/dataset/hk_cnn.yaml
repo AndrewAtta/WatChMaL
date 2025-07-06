@@ -8,8 +8,8 @@ use_charges: True
 use_padding: False
 padding_to_fixed_dimension: [192,192]
 use_isHit: False
-use_positions: True
-use_orientations: True
+use_positions: False
+use_orientations: False
 use_invalid_value: False
 use_log_charge: False
 
