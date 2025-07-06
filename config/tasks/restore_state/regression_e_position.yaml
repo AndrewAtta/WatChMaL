@@ -1,1 +1,2 @@
-weight_file: '/fred/oz233/aatta/ML/outputs/2025/04/29/07-21-00/outputs/RegressionEngine_ResNet_BEST.pth'
+# weight_file: '/fred/oz233/aatta/ML/outputs/2025/04/29/07-21-00/outputs/RegressionEngine_ResNet_BEST.pth'
+weight_file: '/fred/oz233/aatta/ML/outputs/2025/06/22/17-09-33/outputs/RegressionEngine_ResNet_BEST.pth'
