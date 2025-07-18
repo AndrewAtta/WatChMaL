@@ -12,7 +12,7 @@ from contextlib import nullcontext
 
 
 def plot_event_2d(pmt_data, data_coordinates, pmt_coordinates, fig_width=None, title=None, style=None,
-                  color_label=None, color_map=plt.cm.plasma, color_norm=colors.LogNorm(), show_zero=False):
+                  color_label=None, color_map=plt.cm.plasma, color_norm=None, show_zero=False):
     """
     Plots 2D event display from PMT data
 
@@ -35,7 +35,7 @@ def plot_event_2d(pmt_data, data_coordinates, pmt_coordinates, fig_width=None, t
     color_map : str or Colormap, default: plt.cm.plasma
         Color map to use when plotting the data
     color_norm : matplotlib.colors.Normalize, optional
-        Normalization to apply to color scale, by default uses log scaling
+        Normalization to apply to color scale, by default uses no scaling
     show_zero : bool, default: false
         If false, zero data is drawn as the background color
 
