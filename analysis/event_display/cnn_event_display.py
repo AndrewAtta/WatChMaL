@@ -34,7 +34,7 @@ class CNNEventDisplay(CNNDataset):
     """
     This class extends the CNNDataset class to provide event display functionality.
     """
-    def plot_data_2d(self, data, transformations=None, **kwargs):
+    def plot_data_2d(self, data, transformations=None, channel='charge', **kwargs):
         """
         Plots CNN data as a 2D event-display-like image.
 
@@ -45,6 +45,8 @@ class CNNEventDisplay(CNNDataset):
         transformations : function or str or sequence of function or str, optional
             Transformation function, or the name of a method of the dataset, or a sequence of functions or method names
             to apply to the data, such as those used for augmentation.
+        channel : str, default: "charge"
+            The channel to be plotted. String should match what is defined in the self.channel_map
         kwargs : optional
             Additional arguments to pass to `analysis.event_display.plot_event_2d`.
             Valid arguments are:
@@ -70,6 +72,7 @@ class CNNEventDisplay(CNNDataset):
         """
         rows = self.pmt_positions[:, 0]
         columns = self.pmt_positions[:, 1]
+        ch = self.channel_map[channel]
         data = torch.Tensor(data)
         pmt_locations = torch.zeros_like(data, dtype=bool)  # fill a data-like array with False
         pmt_locations[0, rows, columns] = True  # replace with True where there is an actual mPMT
@@ -78,7 +81,7 @@ class CNNEventDisplay(CNNDataset):
             pmt_locations = self.apply_transformation(transformations, pmt_locations)
         coordinates = coordinates_from_data(data)  # coordinates corresponding to each element of the data array
         data_nan = np.full_like(data, np.nan)  # fill an array with nan for positions where there's no actual PMTs
-        data_nan[:, pmt_locations[0]] = data[:, pmt_locations[0]]  # replace the nans with the data where there is a PMT
+        data_nan[ch, pmt_locations[0]] = data[ch, pmt_locations[0]]  # replace the nans with the data where there is a PMT
         pmt_coordinates = coordinates[pmt_locations.flatten()]  # the coordinates of where the actual mPMTs are
         return plot_event_2d(data_nan.flatten(), coordinates, pmt_coordinates, **kwargs)
 
