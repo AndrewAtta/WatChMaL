@@ -1,0 +1,30 @@
+defaults:
+  - data: hkfd_muon
+  - model: resnet50
+  - engine: regression
+  - tasks/train: train_resnet
+  - tasks/restore_best_state: restore_best_state
+  - tasks/evaluate: test
+  - override loss@tasks.train.loss: huber
+  - override loss@tasks.evaluate.loss: huber
+  - override optimizers@tasks.train.optimizers: adamW
+  - override optimizers@tasks.evaluate.optimizers: adamW
+  - _self_
+gpu_list:
+  - 0
+  - 1
+  - 2
+  - 3
+seed: null
+dump_path: './outputs/'
+engine:
+  target_key: positions
+model:
+  num_output_channels: 3
+tasks:
+  train:
+    loss:
+      delta: 50
+  evaluate:
+    loss:
+      delta: 50
