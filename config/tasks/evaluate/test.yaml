@@ -3,5 +3,5 @@ defaults:
   - /data_loaders:
     - test
   - /optimizers: adam
-  - /loss: huber
+  - /loss: huber_momentum
 report_interval: 100
