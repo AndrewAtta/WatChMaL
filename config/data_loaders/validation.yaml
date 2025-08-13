@@ -3,5 +3,5 @@ defaults:
 validation:
   split_key: val_idxs
   batch_size: 64
-  num_workers: 8
+  num_workers: 4
   drop_last: true
