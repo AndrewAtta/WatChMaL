@@ -1,4 +1,5 @@
 defaults:
+ - /scheduler: cosinelr
  - /optimizers: adam
  - /loss: cross_entropy
  - /data_loaders:
