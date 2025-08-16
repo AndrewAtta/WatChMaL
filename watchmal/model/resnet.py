@@ -85,7 +85,7 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
 
     def __init__(self, block, layers, num_input_channels, num_output_channels, zero_init_residual=False,
-                 conv_pad_mode='zeros', group_norm=False, n_groups=32):
+                 conv_pad_mode='zeros', group_norm=False, n_groups=32, dropout_p=0):
         if group_norm:
             class GroupNorm(nn.GroupNorm):
                 def __init__(self, num_channels):
@@ -109,6 +109,7 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2, conv_pad_mode=conv_pad_mode)
 
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.dropout = nn.Dropout(p=dropout_p)
         self.fc = nn.Linear(512 * block.expansion, num_output_channels)
 
         for m in self.modules():
@@ -154,6 +155,7 @@ class ResNet(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
 
+        x = self.dropout(x)
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
         x = self.fc(x)
