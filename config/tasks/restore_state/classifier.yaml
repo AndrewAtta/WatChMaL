@@ -1,1 +1,3 @@
-weight_file: '/fred/oz233/aatta/ML/outputs/2025/04/28/12-48-34/outputs/ClassifierEngine_ResNet_BEST.pth'
+# weight_file: '/fred/oz233/aatta/ML/outputs/2025/04/28/12-48-34/outputs/ClassifierEngine_ResNet_BEST.pth'
+# weight_file: '/fred/oz233/aatta/ML/outputs/2025/10/19/40M_classifier_9ep/outputs/ClassifierEngine_ResNet_BEST.pth'
+weight_file: '/fred/oz233/aatta/ML/outputs/2025/10/19/40M_classifier_9ep/outputs/ClassifierEngine_ResNet_epoch_6.pth'

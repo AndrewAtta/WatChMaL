@@ -1,11 +1,12 @@
 defaults:
- - /scheduler: cosinelr
- - /optimizers: adam
+ - /scheduler: cosinelr_warm_restart
+ - /optimizers: adamW
  - /loss: cross_entropy
  - /data_loaders:
    - train
    - validation
 epochs: 20
-val_interval: 200
-num_val_batches: 128
+val_interval: 500
+num_val_batches: 32
 checkpointing: False
+save_interval: 1

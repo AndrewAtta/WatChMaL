@@ -12,5 +12,5 @@ gpu_list:
   - 1
   - 2
   - 3
-seed: null
+seed: 1337
 dump_path: './outputs/'

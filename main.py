@@ -40,6 +40,7 @@ def main(config):
         config.gpu_list = []
     ngpus = len(config.gpu_list)
     is_distributed = ngpus > 1
+    print(ngpus)
     
     # Initialize process group env variables
     if is_distributed:
@@ -104,25 +105,25 @@ def main_worker_function(rank, config, hydra_config=None):
 
     log.info(f"Running main worker function rank {rank} on device: {device}")
 
-    log.info(f'I am about to instantiate the mode on {rank} on device: {device}')
+    # log.info(f'I am about to instantiate the mode on {rank} on device: {device}')
     # Instantiate model and engine
     model = instantiate(config.model).to(device)
     log.info(f'I have successfully instantiated the mode on {rank} on device: {device}')
 
     # Configure the device to be used for model training and inference
     if is_distributed:
-        log.info(f'I am about to convert model batch norms to syncbatchnorm on {rank} on device: {device}')
+        # log.info(f'I am about to convert model batch norms to syncbatchnorm on {rank} on device: {device}')
         # Convert model batch norms to synchbatchnorm
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
         log.info(f'I have successfully converted model batch norms to syncbatchnorm on {rank} on device: {device}')
-        log.info(f'I am about to do DPP on {rank} on device: {device}')
+        # log.info(f'I am about to do DPP on {rank} on device: {device}')
         model = DDP(model, device_ids=[device])
         log.info(f'I have successfully done DPP on {rank} on device: {device}')
 
         log.info(f"Device {device} has arrived at the first barrier")
         torch.distributed.barrier()
 
-    log.info(f"I am about to instantiate engine on {rank} on device: {device}")
+    # log.info(f"I am about to instantiate engine on {rank} on device: {device}")
     # Instantiate the engine
     engine = instantiate(config.engine, model=model, rank=rank, device=device, dump_path=config.dump_path)
     
@@ -133,7 +134,7 @@ def main_worker_function(rank, config, hydra_config=None):
     for task, task_config in config.tasks.items():
         if is_distributed:
             # Before each task, ensure GPUs are in sync to avoid e.g. loading a state before a GPU finished training
-            log.info(f'I am about to do torch.distributed.barrier() on {rank} on device: {device}')
+            # log.info(f'I am about to do torch.distributed.barrier() on {rank} on device: {device}')
             torch.distributed.barrier()
             log.info(f'I have successfuly run torch.distributed.barrier() on {rank} on device: {device}')
         with open_dict(task_config):
