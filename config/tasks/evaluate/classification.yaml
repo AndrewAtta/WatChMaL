@@ -2,5 +2,5 @@ defaults:
   - /data_loaders:
     - test
   - /loss: cross_entropy
-  - /optimizers: adam
+  - /optimizers: adamW
 report_interval: 100

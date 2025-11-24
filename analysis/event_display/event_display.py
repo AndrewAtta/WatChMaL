@@ -12,7 +12,7 @@ from contextlib import nullcontext
 
 
 def plot_event_2d(pmt_data, data_coordinates, pmt_coordinates, fig_width=None, title=None, style=None,
-                  color_label=None, color_map=plt.cm.plasma, color_norm=None, show_zero=False):
+                  color_label=None, color_map=plt.cm.plasma, color_norm=None, show_zero=False, ax = None, fig=None):
     """
     Plots 2D event display from PMT data
 
@@ -60,7 +60,8 @@ def plot_event_2d(pmt_data, data_coordinates, pmt_coordinates, fig_width=None, t
     fig_size = (20*scale, 16*scale*axis_ranges[1]/axis_ranges[0])
     pmt_circles = [Circle((pos[0], pos[1]), radius=0.48) for pos in pmt_coordinates]
     with plt.style.context(style) if style else nullcontext():
-        fig, ax = plt.subplots(figsize=fig_size)
+        if (ax == None) and (fig==None):
+            fig, ax = plt.subplots(figsize=fig_size)
         ax.set_aspect(1)
         ax.add_collection(PatchCollection(pmt_circles, facecolor='none', linewidths=1*scale, edgecolors=edge_color))
         pmts = ax.scatter(data_coordinates[:, 0], data_coordinates[:, 1], c=pmt_data.flatten(), s=7*scale*scale, cmap=color_map, norm=color_norm)

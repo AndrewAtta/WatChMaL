@@ -1,7 +1,8 @@
 defaults:
   - data: hkfd_muon
-  - model: resnet50
+  - model: resnet152
   - engine: regression
+  # - tasks/restore_state: regression_mu_position
   - tasks/train: train_resnet
   - tasks/restore_best_state: restore_best_state
   - tasks/evaluate: test
@@ -15,7 +16,7 @@ gpu_list:
   - 1
   - 2
   - 3
-seed: null
+seed: 1337
 dump_path: './outputs/'
 engine:
   target_key: positions
@@ -24,7 +25,7 @@ model:
 tasks:
   train:
     loss:
-      delta: 50
+      delta: 20
   evaluate:
     loss:
-      delta: 50
+      delta: 20
