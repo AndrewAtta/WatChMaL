@@ -1,0 +1,11 @@
+defaults:
+  - data: hkfd_muon
+  - model: resnet152
+  - engine: regression
+  - tasks/restore_state: regression_mu_energy
+  - tasks/evaluate: test
+  - _self_
+gpu_list:
+  - 0
+seed: 0
+dump_path: '/fred/oz233/aatta/test/'
