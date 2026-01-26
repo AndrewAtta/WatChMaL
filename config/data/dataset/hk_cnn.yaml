@@ -12,15 +12,12 @@ use_positions: False
 use_orientations: False
 use_invalid_value: False
 use_log_charge: False
-
-#channel_scale_offset:
+# channel_scale_offset:
 #  time: 950
 #  charge: -2
 #  positions: 0
 #  orientations: 0
-#channel_scale_factor:
-#  time: 700
-#  charge: 4
-#  positions: 3000
-#  orientations: 1
+channel_scale_factor:
+ time: 1350
+ charge: 10
 

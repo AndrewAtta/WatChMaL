@@ -1,4 +1,5 @@
 # weight_file: '/fred/oz233/aatta/ML/outputs/2025/04/30/14-35-15/outputs/RegressionEngine_ResNet_BEST.pth'
 # weight_file: '/fred/oz233/aatta/ML/outputs/2025/08/21/mu_nodecay_7x7_s2/outputs/RegressionEngine_ResNet_epoch_20.pth'
 # weight_file: '/fred/oz233/aatta/ML/outputs/2025/08/28/mu_pos_10M_10epoch_eval/outputs/RegressionEngine_ResNet_10M_10ep.pth'
-weight_file: '/fred/oz233/aatta/ML/outputs/2025/08/26/mu_pos_10M/outputs/RegressionEngine_ResNet_epoch_20.pth'
+# weight_file: '/fred/oz233/aatta/ML/outputs/2025/08/26/mu_pos_10M/outputs/RegressionEngine_ResNet_epoch_20.pth'
+weight_file: '/fred/oz233/aatta/ML/outputs/2025/09/15/mu_pos_10M_ndcap/outputs/RegressionEngine_ResNet_BEST.pth'
