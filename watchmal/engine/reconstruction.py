@@ -377,7 +377,7 @@ class ReconstructionEngine(ABC):
     def inference(self, report_interval=20, with_metrics=True):
         """"""
         log.info(f"{'Evaluating' if with_metrics else 'Predicting'}, output to directory: {self.dump_path}")
-
+    
         with torch.no_grad():
             self.model.eval()
             start_time = datetime.now()

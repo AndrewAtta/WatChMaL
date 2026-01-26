@@ -40,7 +40,6 @@ def main(config):
         config.gpu_list = []
     ngpus = len(config.gpu_list)
     is_distributed = ngpus > 1
-    print(ngpus)
     
     # Initialize process group env variables
     if is_distributed:
