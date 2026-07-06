@@ -1,5 +1,0 @@
-defaults:
-  - dataset: hk_cnn
-split_path: /fred/oz233/aatta/ML/data/hkfd/PG_samples/mu_0-2GeV_0-4999_200events_fixed_axis.npz
-dataset:
-  h5file: /fred/oz233/aatta/ML/data/hkfd/PG_samples/mu_0-2GeV_0-4999_200events_fixed_axis.h5

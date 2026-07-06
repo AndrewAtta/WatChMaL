@@ -1,5 +1,0 @@
-# weight_file: '/fred/oz233/aatta/ML/outputs/2025/04/29/07-21-58/outputs/RegressionEngine_ResNet_BEST.pth'
-# weight_file: '/fred/oz233/aatta/ML/outputs/2025/06/22/14-46-00/outputs/RegressionEngine_ResNet_BEST.pth'
-# weight_file: '/fred/oz233/aatta/ML/outputs/2025/09/08/mu_dir_10M/outputs/RegressionEngine_ResNet_epoch_16.pth'
-# weight_file: '/fred/oz233/aatta/ML/outputs/2025/09/15/mu_dir_10M_ndcap/outputs/RegressionEngine_ResNet_BEST.pth'
-weight_file: '/fred/oz233/aatta/normflowsPOC/mu_direction_10M_ndcap_post_PR85.pth'
