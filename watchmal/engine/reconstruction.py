@@ -20,7 +20,11 @@ from watchmal.dataset.data_utils import get_data_loader
 from watchmal.utils.logging_utils import CSVLog
 
 # AMP imports
-from torch.amp import GradScaler, autocast
+from torch.amp import autocast
+try:
+    from torch.amp import GradScaler
+except ImportError:
+    from torch.cuda.amp import GradScaler #torch <2.3 fallback
 
 log = logging.getLogger(__name__)
 
@@ -102,7 +106,10 @@ class ReconstructionEngine(ABC):
         """Configure automatic mixed precision (AMP)."""
         self.use_amp = bool(amp_enabled) and (self.device.type == "cuda")
         if self.use_amp:
-            self.scaler = GradScaler("cuda")
+            try:
+                self.scaler = GradScaler("cuda")
+            except TypeError:
+                self.scaler = GradScaler() # Fall back for torch versions <2.3
         if self.rank == 0:
             log.info(f"AMP enabled: {self.use_amp}")
 
