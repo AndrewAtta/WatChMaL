@@ -20,7 +20,11 @@ from watchmal.dataset.data_utils import get_data_loader
 from watchmal.utils.logging_utils import CSVLog
 
 # AMP imports
-from torch.amp import GradScaler, autocast
+from torch.amp import autocast
+try:
+    from torch.amp import GradScaler
+except ImportError:
+    from torch.cuda.amp import GradScaler #torch <2.3 fallback
 
 log = logging.getLogger(__name__)
 
@@ -115,7 +119,9 @@ class ReconstructionEngine(ABC):
                 self.amp_dtype = torch.bfloat16
             elif amp_dtype == "fp16":
                 self.amp_dtype = torch.float16
-                self.scaler = GradScaler("cuda")
+                try:
+                    self.scaler = GradScaler("cuda")
+                except TypeError:
         if self.rank == 0:
             log.info(f"AMP enabled: {amp_dtype}")
 

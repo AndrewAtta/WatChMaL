@@ -122,7 +122,7 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
 
     def __init__(self, block, layers, num_input_channels, num_output_channels, zero_init_residual=False,
-                 first_kernel_size=1, first_stride=1, shift_inv_channels=None, conv_pad_mode='zeros',
+                 first_kernel_size=5, first_stride=2, shift_inv_channels=None, conv_pad_mode='zeros',
                  group_norm=False, n_groups=32, first_conv_pad_mode=None):
         if group_norm:
             class GroupNorm(nn.GroupNorm):
