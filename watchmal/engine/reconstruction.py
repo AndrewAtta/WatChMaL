@@ -430,6 +430,10 @@ class ReconstructionEngine(ABC):
         if self.rank == 0:
             # Save overall evaluation results
             log.info("Saving Data...")
+            # DistributedSampler pads the test set to divide evenly across ranks, duplicating
+            # some events; keep the first occurences of each index and sort into dataset order
+            _, unique_positions = np.unique(all_outputs['indices'], return_index=True)
+            all_outputs = {k: v[unique_positions] for k,v in all_outputs.items()}
             for k, v in all_outputs.items():
                 np.save(self.dump_path + k + ".npy", v)
             # Compute overall evaluation metrics
