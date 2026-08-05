@@ -122,6 +122,7 @@ class ReconstructionEngine(ABC):
                 try:
                     self.scaler = GradScaler("cuda")
                 except TypeError:
+                    self.scaler = GradScaler() # torch <2.3 fallback
         if self.rank == 0:
             log.info(f"AMP enabled: {amp_dtype}")
 
