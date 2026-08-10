@@ -33,7 +33,7 @@ class CNNEventDisplay(CNNDataset):
     """
     This class extends the CNNDataset class to provide event display functionality.
     """
-    def plot_data_2d(self, data, transforms=None, **kwargs):
+    def plot_data_2d(self, data, channel=None, transforms=None, **kwargs):
         """
         Plots CNN data as a 2D event-display-like image.
 
@@ -73,6 +73,8 @@ class CNNEventDisplay(CNNDataset):
         data_nan[:, rows, columns] = data[:, rows, columns]
         if transforms is not None:
             data_nan = self.apply_transform(transforms, {"data": data_nan})["data"]
+        if channel is not None:
+            data_nan = data_nan[[self.channel_map[channel]]]
         coordinates = coordinates_from_data(data_nan)  # coordinates corresponding to each element of the data array
         pmt_coordinates = coordinates[~np.isnan(data_nan).flatten()]  # the coordinates of where the actual mPMTs are
         return plot_event_2d(data_nan.flatten(), coordinates, pmt_coordinates, **kwargs)
