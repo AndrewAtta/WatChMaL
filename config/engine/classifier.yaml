@@ -1,0 +1,7 @@
+_target_: watchmal.engine.classification.ClassifierEngine
+target_key: 'labels'
+label_set:
+  - 0
+  - 1
+  - 2
+  - 3

@@ -1,0 +1,12 @@
+defaults:
+ - /scheduler: cosinelr_warm_restart
+ - /optimizers: adamW
+ - /loss: cross_entropy
+ - /data_loaders:
+   - train
+   - validation
+epochs: 20
+val_interval: 20
+num_val_batches: 100
+checkpointing: False
+# save_interval: 1

@@ -114,6 +114,3 @@ kernprof.py
 .idea/
 __MACOSX/
 /outputs/
-
-#config changes
-config/

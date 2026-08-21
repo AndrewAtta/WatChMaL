@@ -1,0 +1,7 @@
+defaults:
+  - /sampler@validation.sampler: subset_random
+validation:
+  split_key: val_idxs
+  batch_size: 512
+  num_workers: 8
+  drop_last: true
