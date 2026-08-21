@@ -70,7 +70,7 @@ def plot_event_2d(pmt_data, data_coordinates, pmt_coordinates, fig_width=None, t
         ax.set_ylim([ax_min[1], ax_max[1]])
         ax.axes.xaxis.set_visible(False)
         ax.axes.yaxis.set_visible(False)
-        fig.colorbar(pmts, ax=ax, pad=0, label=color_label)
+        fig.colorbar(pmts, ax=ax, pad=0.03, label=color_label)
     if title is not None:
         ax.set_title(title)
     return fig, ax

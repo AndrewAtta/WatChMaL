@@ -1,0 +1,14 @@
+engine:
+  target_key:
+    - energies
+model:
+  num_output_channels: 1
+tasks:
+  train:
+    loss:
+      _target_: watchmal.loss.relative_huber.RelativeHuberLoss
+      delta: 0.1
+  evaluate:
+    loss:
+      _target_: watchmal.loss.relative_huber.RelativeHuberLoss
+      delta: 0.1

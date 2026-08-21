@@ -28,11 +28,12 @@ def coordinates_from_data(data):
     coordinates = indices[[2, 1]].reshape(2, -1).astype(np.float64).T
     return coordinates
 
-
 class CNNEventDisplay(CNNDataset):
     """
     This class extends the CNNDataset class to provide event display functionality.
     """
+    
+    
     def plot_data_2d(self, data, channel=None, transforms=None, **kwargs):
         """
         Plots CNN data as a 2D event-display-like image.
@@ -296,3 +297,7 @@ class CNNEventDisplay(CNNDataset):
         See documentation of `CNNmPMTEventDisplay.plot_geometry`.
         """
         return self.plot_geometry(geometry_file_path, plot, view='3d', **kwargs)
+    
+    
+
+

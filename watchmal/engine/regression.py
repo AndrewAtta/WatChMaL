@@ -23,8 +23,8 @@ metric_functions = {
         lambda x, y: {'direction error': torch.mean(torch.arccos(torch.cos(x[:, 0])*torch.cos(y[:, 0])
                                                 + torch.sin(x[:, 0])*torch.sin(y[:, 0])*torch.cos(x[:, 1]-y[:, 1])))},
     'energies':  # mean fractional error and bias
-        lambda x, y: {'energy bias': torch.mean((x - y) / y),
-                      'energy error': torch.mean(torch.abs(x-y)/y)},
+        lambda x, y: {'energy bias': torch.mean((x.reshape(y.shape) - y) / y),
+                      'energy error': torch.mean(torch.abs(x.reshape(y.shape)-y)/y)},
     'three_momenta':  three_momenta_metrics,
     'log_momenta': # mean fractional error and bias
         lambda x, y: {'momentum bias': torch.mean(torch.exp(x-y) - 1.0),

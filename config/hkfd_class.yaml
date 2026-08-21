@@ -1,0 +1,4 @@
+engine:
+  target_key: labels
+model:
+  num_output_channels: 4

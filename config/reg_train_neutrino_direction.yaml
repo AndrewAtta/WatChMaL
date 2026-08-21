@@ -1,0 +1,23 @@
+defaults:
+  - data: hkfd_muon
+  - model: resnet50
+  - engine: regression
+  - tasks/train: train_resnet
+  - tasks/restore_best_state: restore_best_state
+  - tasks/evaluate: test
+  - override loss@tasks.train.loss: huber_direction
+  - override loss@tasks.evaluate.loss: huber_direction
+  - override optimizers@tasks.train.optimizers: adamW
+  - override optimizers@tasks.evaluate.optimizers: adamW
+  - _self_
+gpu_list:
+  - 0
+  - 1
+  - 2
+  - 3
+seed: 1337
+dump_path: './outputs/'
+engine:
+  target_key: directions
+model:
+  num_output_channels: 3
