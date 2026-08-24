@@ -2,21 +2,17 @@ defaults:
   - data: hkfd_muon
   - model: resnet50
   - engine: regression
-  - tasks/restore_state: regression_nue_energy
+  - tasks/restore_state: regression_nue_direction
   - tasks/predict: test
   - _self_
 gpu_list:
   - 0
-  - 1
-  - 2
-  - 3
 seed: 1337
 dump_path: './outputs/'
 engine:
-  target_key: neutrino_energy
-  target_scale_factor: 1000
+  target_key: directions
 model:
-  num_output_channels: 1
+  num_output_channels: 3
 # tasks:
 #   train:
 #     loss:
