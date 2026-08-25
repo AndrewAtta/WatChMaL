@@ -119,10 +119,7 @@ class ReconstructionEngine(ABC):
                 self.amp_dtype = torch.bfloat16
             elif amp_dtype == "fp16":
                 self.amp_dtype = torch.float16
-                try:
-                    self.scaler = GradScaler("cuda")
-                except TypeError:
-                    self.scaler = GradScaler() # torch <2.3 fallback
+                self.scaler = GradScaler()
         if self.rank == 0:
             log.info(f"AMP enabled: {amp_dtype}")
 
@@ -264,7 +261,7 @@ class ReconstructionEngine(ABC):
             optimizer_was_updated = True
         return optimizer_was_updated
 
-    def train(self, epochs=0, val_interval=20, num_val_batches=4, checkpointing=False, save_interval=None):
+    def train(self, epochs=0, val_interval=20, num_val_batches=4, checkpointing=False, save_interval=None, report_interval=None):
         """
         Train the model on the training set. The best state is always saved during training.
 
@@ -283,6 +280,8 @@ class ReconstructionEngine(ABC):
         """
         if self.rank == 0:
             log.info(f"Training {epochs} epochs with {num_val_batches}-batch validation each {val_interval} iterations")
+        if report_interval is None:
+            report_interval = val_interval
         # set model to training mode
         self.model.train()
         # initialize epoch and iteration counters
@@ -327,19 +326,20 @@ class ReconstructionEngine(ABC):
                 log_entries = {"iteration": self.iteration, "epoch": self.epoch, **metrics}
                 # record the metrics for the mini-batch in the log
                 self.train_log.log(log_entries)
-                # run validation on given intervals
+                # run progress on given intervals
+                if self.iteration % report_interval == 0 and self.rank == 0:
+                    previous_step_time = step_time
+                    step_time = datetime.now()
+                    average_step_time = (step_time - previous_step_time)/report_interval
+                    print(f"Iteration {self.iteration},"
+                            f" Epoch {self.epoch+1}/{epochs},"
+                            f" Step {step}/{steps_per_epoch}"
+                            f" Step time {average_step_time},"
+                            f" Epoch time {step_time-epoch_start_time}"
+                            f" Total time {step_time-start_time}")
+                    print(f"  Training   {', '.join(f'{k}: {v:.5g}' for k, v in metrics.items())}")
+                # Run validation on given intervals
                 if self.iteration % val_interval == 0:
-                    if self.rank == 0:
-                        previous_step_time = step_time
-                        step_time = datetime.now()
-                        average_step_time = (step_time - previous_step_time)/val_interval
-                        print(f"Iteration {self.iteration},"
-                              f" Epoch {self.epoch+1}/{epochs},"
-                              f" Step {step}/{steps_per_epoch}"
-                              f" Step time {average_step_time},"
-                              f" Epoch time {step_time-epoch_start_time}"
-                              f" Total time {step_time-start_time}")
-                        print(f"  Training   {', '.join(f'{k}: {v:.5g}' for k, v in metrics.items())}")
                     self.validate(val_iter, num_val_batches, checkpointing)
             # save state at end of epoch
             if self.rank == 0 and (save_interval is not None) and ((self.epoch+1) % save_interval == 0):

@@ -1,0 +1,61 @@
+defaults:
+  - data: hkfd_dec2025_hx2_mu_fc
+  - model: resnet50_hkfd
+  - engine: regression
+  - tasks/train: train_hkfd
+  - tasks/restore_best_state: restore_best_state
+  - tasks/evaluate: test
+  - override loss@tasks.train.loss: multi_target
+  - override loss@tasks.evaluate.loss: multi_target
+  - override optimizers@tasks.train.optimizers: adamW2D
+  - _self_
+
+gpu_list: [0, 1]            # farnarkle P100 nodes have 2
+seed: 1337
+dump_path: './outputs/'
+amp: false                  # P100: no bf16, and fp16 overflows in eval mode
+
+engine:
+  channels_last: false      # NHWC kernels target Tensor Cores; Pascal has none
+  target_key:
+    - neutrino_energy
+    - energies
+    - positions
+    - directions
+  target_scale_factor:
+    neutrino_energy: 2000
+    energies: 2000
+    positions: 1750
+    directions: 1
+
+model:
+  num_output_channels: 8
+
+tasks:
+  train:
+    optimizers:
+      lr: 0.0025            # 0.01 was tuned at batch 256
+      weight_decay: 0.005
+    loss:
+      deltas: [0.1, 0.05, 1.0, 1.0]
+    scheduler:
+      T_max: 24930         
+    data_loaders:
+      train:
+        batch_size: 64
+        num_workers: 4
+      validation:
+        batch_size: 64
+        num_workers: 4
+    epochs: 1
+    val_interval: 4000      # 18 validations; 4000 pushes the job to 46h
+    num_val_batches: 1500   # full validation pass
+    report_interval: 200
+    save_interval: 1
+  evaluate:
+    loss:
+      deltas: [0.1, 0.05, 1.0, 1.0]
+    data_loaders:
+      test:
+        batch_size: 64
+        num_workers: 4

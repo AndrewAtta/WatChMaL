@@ -29,6 +29,9 @@ metric_functions = {
     'log_momenta': # mean fractional error and bias
         lambda x, y: {'momentum bias': torch.mean(torch.exp(x-y) - 1.0),
                       'momentum error': torch.mean(torch.abs(torch.exp(x-y) - 1.0))},
+    'neutrino_energy': # mean fractional error and bias
+        lambda x, y: {'neutrino bias': torch.mean((x.reshape(y.shape) - y) / y),
+                      'neutrino energy errror': torch.mean(torch.abs(x.reshape(y.shape)-y)/y)}
 }
 
 

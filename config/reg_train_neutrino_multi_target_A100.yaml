@@ -1,0 +1,52 @@
+defaults:
+  - data: hkfd_dec2025_hx2_mu_fc
+  - model: resnet50_hkfd
+  - engine: regression
+  - tasks/train: train_hkfd
+  - tasks/restore_best_state: restore_best_state
+  - tasks/evaluate: test
+  - override loss@tasks.train.loss: multi_target
+  - override loss@tasks.evaluate.loss: multi_target
+  - override optimizers@tasks.train.optimizers: adamW2D
+  - _self_
+gpu_list:
+  - 0
+  - 1
+  - 2
+  - 3
+seed: 1337
+dump_path: './outputs/'
+engine:
+  target_key:
+    - neutrino_energy
+    - energies
+    - positions
+    - directions
+  target_scale_factor:
+    neutrino_energy: 2000
+    energies: 2000
+    positions: 1750
+    directions: 1
+model:
+  num_output_channels: 8
+amp: true
+tasks:
+  train:
+    data_loaders:
+      train:
+        batch_size: 512
+        num_workers: 4
+      validate:
+        batch_size: 512
+        num_workers: 4
+    scheduler:
+      T_max: 12465 #24930
+    epochs: 20
+    val_interval: 2000
+    num_val_batches: 1350
+    save_interval: 2
+  evaluate:
+    data_loaders:
+      test:
+        batch_size: 512
+        num_workers: 4

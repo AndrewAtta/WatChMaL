@@ -1,0 +1,5 @@
+# Per-target loss for multi-target regression.
+# `target_keys` is interpolated from the engine so the loss always splits the
+# stacked output the same way the engine stacked it.
+_target_: watchmal.loss.multi_target_loss.MultiTargetLoss
+deltas: [0.1, 0.05, 1, 1]
