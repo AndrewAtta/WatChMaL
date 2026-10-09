@@ -39,7 +39,7 @@ tasks:
     loss:
       deltas: [0.1, 0.05, 1.0, 1.0]
     scheduler:
-      T_max: 24930         
+      T_max: 249300         
     data_loaders:
       train:
         batch_size: 64
@@ -47,7 +47,7 @@ tasks:
       validation:
         batch_size: 64
         num_workers: 4
-    epochs: 1
+    epochs: 20
     val_interval: 4000      # 18 validations; 4000 pushes the job to 46h
     num_val_batches: 1500   # full validation pass
     report_interval: 200

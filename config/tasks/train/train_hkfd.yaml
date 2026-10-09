@@ -9,11 +9,11 @@ scheduler:
   eta_min: 1.0e-06
 data_loaders:
   train:
-    batch_size: 512
+    batch_size: 256
     pre_transforms: null
   validation:
-    batch_size: 4096
-num_val_batches: 48
-val_interval: 400
-epochs: 30
+    batch_size: 256
+num_val_batches: 690
+val_interval: 2000
+epochs: 6
 checkpointing: false

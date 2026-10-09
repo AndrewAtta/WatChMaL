@@ -79,7 +79,7 @@ def plot_binned_values(ax, func, values, binning, selection=None, errors=False, 
         Additional arguments to pass to the plotting function. Note that these may be overridden by arguments
         provided in `runs`.
     """
-    plot_args.setdefault('lw', 2)
+    # plot_args.setdefault('lw', 2)
     binned_values = bins.apply_binning(values, binning, selection)
     x = bins.bin_centres(binning[0])
     if errors:

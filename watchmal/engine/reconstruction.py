@@ -146,15 +146,19 @@ class ReconstructionEngine(ABC):
         """
         global_output_dict = {}
         for name, tensor in output_dict.items():
+            # numpy has no bfloat16/float16 dtype. We need to promote flaots to float32 but keep integers
+            # dtypes exact. Event indices exceed float32's exact integer range (i.e 2**24=16777216) for
+            # datasets larger than around 16.8M events. Large classification datasets are 40M events.
+            output_dtype = torch.float32 if tensor.is_floating_point() else tensor.dtype            
             if self.is_distributed:
                 if self.rank == 0:
                     tensor_list = [torch.zeros_like(tensor, device=self.device) for _ in range(self.n_gpus)]
                     torch.distributed.gather(tensor, tensor_list)
-                    global_output_dict[name] = torch.cat(tensor_list).detach().cpu().float().numpy()
+                    global_output_dict[name] = torch.cat(tensor_list).detach().cpu().to(output_dtype).numpy()
                 else:
                     torch.distributed.gather(tensor, dst=0)
             else:
-                global_output_dict[name] = tensor.detach().cpu().float().numpy()
+                global_output_dict[name] = tensor.detach().cpu().to(output_dtype).numpy()
         return global_output_dict
 
     def get_synchronized_metrics(self, metric_dict):

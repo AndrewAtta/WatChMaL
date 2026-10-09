@@ -9,14 +9,15 @@ defaults:
   - override loss@tasks.evaluate.loss: multi_target
   - override optimizers@tasks.train.optimizers: adamW2D
   - _self_
-gpu_list:
-  - 0
-  - 1
-  - 2
-  - 3
+
+gpu_list: [0, 1, 2, 3]      # milan A100 node
 seed: 1337
 dump_path: './outputs/'
+amp: true                   # A100 has bf16; its fp32 exponent range avoids the
+                            # eval-mode overflow that forced fp32 on the P100s
+
 engine:
+  channels_last: true       # NHWC feeds A100 Tensor Cores
   target_key:
     - neutrino_energy
     - energies
@@ -25,28 +26,37 @@ engine:
   target_scale_factor:
     neutrino_energy: 2000
     energies: 2000
-    positions: 1750
+    positions: 1750         # = position RMS, so scaled targets are ~unit variance
     directions: 1
+
 model:
   num_output_channels: 8
-amp: true
+
 tasks:
   train:
+    optimizers:
+      lr: 0.01             
+      weight_decay: 0.005
+    loss:
+      deltas: [0.1, 0.05, 1.0, 1.0]
+    scheduler:
+      T_max: 31180          # 1559 iterations/epoch x 20; scheduler steps per iteration
     data_loaders:
       train:
         batch_size: 512
-        num_workers: 4
-      validate:
+        num_workers: 6
+      validation:
         batch_size: 512
-        num_workers: 4
-    scheduler:
-      T_max: 12465 #24930
+        num_workers: 6
     epochs: 20
-    val_interval: 2000
-    num_val_batches: 1350
-    save_interval: 2
+    val_interval: 500       # 62 validations over the run
+    num_val_batches: 194    # full validation pass at batch 512 on 4 GPUs
+    report_interval: 50     # only 31,180 iterations total, so 200 is coarse
+    save_interval: 1
   evaluate:
+    loss:
+      deltas: [0.1, 0.05, 1.0, 1.0]
     data_loaders:
       test:
         batch_size: 512
-        num_workers: 4
+        num_workers: 6
